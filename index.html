@@ -81,32 +81,119 @@
 
         .message-form label {
             padding: 10px;
-            background-color: #ddd;
+            margin-left: 10px;
+            background-color: #f1f1f1;
             border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
         }
 
         .message-form label:hover {
-            background-color: #ccc;
+            background-color: #e1e1e1;
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <h1>Chat App</h1>
+        <h1>OpenAI Chat Platform</h1>
+
         <div class="messages">
-            <!-- Messages will be added here -->
+            <div class="message-container" v-for="message in messages">
+                <span class="username">{{ message.username }}:</span>
+                <span class="message" v-if="!message.image">{{ message.message }}</span>
+                <img v-else :src="message.image" class="message" />
+                <span class="timestamp">{{ message.timestamp }}</span>
+            </div>
         </div>
+
         <div class="message-form">
-            <form>
-                <textarea placeholder="Enter your message here..."></textarea>
-                <button type="submit">Send</button>
-                <label for="file-upload">
-                    <input id="file-upload" type="file" />
-                    Upload an image
-                </label>
-            </form>
+            <textarea v-model="message" placeholder="Enter your message here"></textarea>
+            <button @click="sendMessage">Send</button>
+            <input type="file" id="image" ref="image" @change="sendImage" />
+            <label for="image">Choose image</label>
         </div>
     </div>
+
+    <script src="https://unpkg.com/socket.io-client@2/dist/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script>
+        const socket = io();
+
+        const app = new Vue({
+            el: '.chat-container',
+            data: {
+                username: '',
+                messages: [],
+                message: ''
+            },
+            methods: {
+                sendMessage() {
+                    if (this.message.trim()) {
+                        socket.emit('new message', {
+                            message: this.message
+                        });
+                        this.message = '';
+                    }
+                },
+                sendImage() {
+                    const image = this.$refs.image.files[0];
+                    const formData = new FormData();
+                    formData.append('image', image);
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    }).then((response) => {
+                        return response.json();
+                    }).then((json) => {
+                        socket.emit('new image', {
+                            image: json.path
+                        });
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+                }
+            },
+            mounted() {
+                const username = prompt('Enter your username:');
+                this.username = username;
+
+                socket.emit('new user', {
+                    username
+                });
+
+                socket.on('new message', (data) => {
+                    this.messages.push({
+                        username: data.username,
+                        message: data.message,
+                        timestamp: new Date().toLocaleString()
+                    });
+                });
+
+                socket.on('new image', (data) => {
+                    this.messages.push({
+                        username: data.username,
+                        image: data.image,
+                        timestamp: new Date().toLocaleString()
+                    });
+                });
+
+                socket.on('new user', (data) => {
+                    this.messages.push({
+                        message: `${data.username} has joined the chat`,
+                        timestamp: new Date().toLocaleString()
+                    });
+                });
+
+                socket.on('user disconnected', (data) => {
+                    this.messages.push({
+                        message: `${data.username} has left the chat`,
+                        timestamp: new Date().toLocaleString()
+                    });
+                });
+            }
+        });
+    </script>
 </body>
+</html>
