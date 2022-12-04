@@ -204,7 +204,42 @@
                 messagesElement.appendChild(messageElement);
                 messagesElement.scrollTop = messagesElement.scrollHeight;
             }
+      // Listen for the "new message" event from the server
+      socket.on('new message', (data) => {
+        // Create a new message element with the received data
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message-container');
 
+        const usernameElement = document.createElement('div');
+        usernameElement.classList.add('username');
+        usernameElement.innerText = data.username;
+        messageElement.appendChild(usernameElement);
+
+        const messageTextElement = document.createElement('div');
+        messageTextElement.classList.add('message');
+        messageTextElement.innerText = data.message;
+        messageElement.appendChild(messageTextElement);
+
+        // Add the message element to the list of messages in the chat window
+        const messagesElement = document.querySelector('.messages');
+        messagesElement.appendChild(messageElement);
+      });
+
+      // Listen for the submit event on the form element
+      const messageFormElement = document.querySelector('.message-form');
+      messageFormElement.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        // Get the message text from the input element
+        const message = messageFormElement.querySelector('textarea').value;
+
+        // Emit the "new message" event to the server
+        socket.emit('new message', { message });
+
+        // Clear the input element
+        messageFormElement.querySelector('textarea').value = '';
+      });
+    </script>
             // Vue.js app
             const app = new Vue({
                 el: '.message-form',
