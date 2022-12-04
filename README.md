@@ -10,7 +10,7 @@ Requirements:
 - Node.js
 - These packages from npm (run to install)
 ```
-npm install express socket.io html-escape multer cors
+npm install express socket.io html-escape multer cors escape-html
 ```
 - Port 3000 open.
 
