@@ -41,6 +41,7 @@ io.on('connection', (socket) => {
         const message = htmlEscape(data.message);
         socket.emit('new message', { username, message });  // <-- Add this line to send messages to the client
         socket.broadcast.emit('new message', { username, message });
+        socket.emit('new message', { username, message });
     });
 
     socket.on('new image', (data) => {
