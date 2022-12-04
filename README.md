@@ -2,9 +2,9 @@
 This simple chat platform was made with the OpenAI chatbot.
 
 Features:
--Basic CSS
--Image upload functionality
--Basic XSS protection
+- Basic CSS
+- Image upload functionality
+- Basic XSS protection
 
 Requirements:
 - Node.js
