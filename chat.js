@@ -1,19 +1,19 @@
 const express = require('express');
 const socketIO = require('socket.io');
 const cors = require('cors');
-const escapeHtml = require('escape-html');
+const htmlEscape = require('html-escape');
 const multer = require('multer');
 
 const app = express();
 
 app.use(cors());
 
-const server = app.listen(3000, 'localhost', (err) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log('Server listening on port 3000');
-  }
+const server = app.listen(3000, (err) => {
+    if (err) {
+        console.error(err);
+    } else {
+        console.log('Server listening on port 3000');
+    }
 });
 
 const io = socketIO(server);
@@ -27,13 +27,14 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     let username = '';
+
     socket.on('new user', (data) => {
-        username = escapeHtml(data.username);
+        username = htmlEscape(data.username);
         socket.broadcast.emit('new user', { username });
     });
 
     socket.on('new message', (data) => {
-        const message = escapeHtml(data.message);
+        const message = htmlEscape(data.message);
         io.emit('new message', { username, message });
     });
 
