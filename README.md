@@ -13,3 +13,8 @@ Requirements:
 npm install express socket.io html-escape multer cors
 ```
 - Port 3000 open.
+
+Start:
+1. Run ``node chat.js``
+2. Open your web browser and navigate to http://127.0.0.1:3000
+3. Enjoy
