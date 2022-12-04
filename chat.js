@@ -13,12 +13,23 @@ app.use(cors());
 
 // Replace "localhost" with the public IP address of the machine where the server is running
 // Replace "3000" with the port number that you want the server to listen on (e.g. 4000)
+
 const server = app.listen(3000, '0.0.0.0', (err) => {
   if (err) {
     console.error(err);
   } else {
     console.log('Server listening on port 3000');
   }
+});
+socket.on('connect', () => {
+  console.log('Connected to the server');
+
+  // Send a message to the server
+  socket.emit('new message', { message: 'Hello from the client!' });
+});
+
+socket.on('new message', (data) => {
+  console.log(`Received new message from ${data.username}: ${data.message}`);
 });
 const io = socketIO(server);
 const upload = multer({ dest: 'uploads/' });
