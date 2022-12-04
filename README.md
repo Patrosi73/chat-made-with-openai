@@ -3,7 +3,7 @@ This simple chat platform was made with the OpenAI chatbot. Note that this may n
 
 Any commits you see from me are from the AI trying to fix its own code
 
-Features:
+Features that it should have:
 - Basic CSS
 - Image upload functionality
 - Basic XSS protection
