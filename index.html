@@ -80,53 +80,27 @@
         }
 
         .message-form input[type="file"] {
-            display: none;
-        }
-
-        .message-form .attach-image {
             margin-left: 10px;
-            padding: 6px 12px;
-            background-color: #337ab7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .message-form .attach-image:hover {
-            background-color: #286090;
-        }
-
-        .message-form .attach-image:active {
-            background-color: #204d74;
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <h1>OpenAI Chat Platform</h1>
-        <div class="messages">
-            <div class="message-container" *ngFor="let message of messages">
-                <div class="username">{{message.username}}:</div>
-                <div class="message">{{message.message}}</div>
-                <div class="timestamp">{{message.timestamp}}</div>
-            </div>
-        </div>
-        <div class="message-form">
-            <textarea [(ngModel)]="message" (keydown.enter)="sendMessage()"></textarea>
-            <button (click)="sendMessage()">Send message</button>
-            <label for="attach-image" class="attach-image">Attach image</label>
-            <input type="file" id="attach-image" (change)="uploadImage($event)">
-        </div>
+        <div class="messages"></div>
+        <form class="message-form" onsubmit="sendMessage(); return false;">
+            <textarea v-model="message" placeholder="Type your message..."></textarea>
+            <button type="submit">Send message</button>
+            <input type="file" @change="uploadImage">
+        </form>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script>
         const socket = io();
-
         let username = '';
         let message = '';
 
-        // Get username
+        // Prompt for username
         while (!username) {
             username = prompt('Enter your username:');
         }
@@ -199,19 +173,22 @@
 
             const usernameElement = document.createElement('div');
             usernameElement.classList.add('username');
-            usernameElement.textContent = data.username;
-            messageElement.appendChild(usernameElement);
+            usernameElement.innerText = data.username;
+
+            const messageTextElement = document.createElement('div');
+            messageTextElement.classList.add('message');
+            messageTextElement.innerText = data.message;
 
             if (messageSuffix) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                messageElement.textContent = messageSuffix;
-                messageElement.appendChild(messageElement);
+                messageTextElement.innerText += ' ' + messageSuffix;
             }
 
             const timestampElement = document.createElement('div');
             timestampElement.classList.add('timestamp');
-            timestampElement.textContent = new Date().toLocaleString();
+            timestampElement.innerText = new Date().toLocaleTimeString();
+
+            messageElement.appendChild(usernameElement);
+            messageElement.appendChild(messageTextElement);
             messageElement.appendChild(timestampElement);
 
             const messagesElement = document.querySelector('.messages');
@@ -221,11 +198,24 @@
 
         // Add image to chat history
         function addImage(data) {
-            const imageElement = document.createElement('img');
-            imageElement.src = `/uploads/${data.image.filename}`;
-
             const messagesElement = document.querySelector('.messages');
+
+            const imageElement = document.createElement('img');
+            imageElement.classList.add('message');
+            imageElement.src = data.image.path;
+
+            const usernameElement = document.createElement('div');
+            usernameElement.classList.add('username');
+            usernameElement.innerText = data.username;
+
+            const timestampElement = document.createElement('div');
+            timestampElement.classList.add('timestamp');
+            timestampElement.innerText = new Date().toLocaleTimeString();
+
+            messagesElement.appendChild(usernameElement);
             messagesElement.appendChild(imageElement);
+            messagesElement.appendChild(timestampElement);
+
             messagesElement.scrollTop = messagesElement.scrollHeight;
         }
     </script>
