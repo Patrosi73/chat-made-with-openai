@@ -1,223 +1,214 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>OpenAI Chat Platform</title>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-
-        .chat-container {
-            width: 500px;
-            margin: auto;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .chat-container h1 {
-            text-align: center;
-        }
-
-        .messages {
-            height: 300px;
-            overflow-y: auto;
-        }
-
-        .message-container {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .username {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .message {
-            background-color: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .timestamp {
-            font-size: 11px;
-            color: #ccc;
-            margin-top: 10px;
-        }
-
-        .message-form {
-            display: flex;
-            align-items: flex-start;
-            margin-top: 10px;
-        }
-
-        .message-form textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-        }
-
-        .message-form button {
-            margin-left: 10px;
-            padding: 6px 12px;
-            background-color: #337ab7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .message-form button:hover {
-            background-color: #286090;
-        }
-
-        .message-form button:active {
-            background-color: #204d74;
-        }
-
-        .message-form input[type="file"] {
-            margin-left: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="chat-container">
-        <h1>OpenAI Chat Platform</h1>
-        <div class="messages"></div>
-        <form class="message-form" onsubmit="sendMessage(); return false;">
-            <textarea v-model="message" placeholder="Type your message..."></textarea>
-            <button type="submit">Send message</button>
-            <input type="file" @change="uploadImage">
-        </form>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-    <script>
-        const socket = io();
-        let username = '';
-        let message = '';
-
-        // Prompt for username
-        while (!username) {
-            username = prompt('Enter your username:');
-        }
-
-        // Listen for new users
-        socket.on('new user', (data) => {
-            addMessage(data, 'has joined the chat.');
-        });
-
-        // Listen for new messages
-        socket.on('new message', (data) => {
-            addMessage(data);
-        });
-
-        // Listen for new images
-        socket.on('new image', (data) => {
-            addImage(data);
-        });
-
-        // Listen for user disconnection
-        socket.on('user disconnected', (data) => {
-            addMessage(data, 'has left the chat.');
-        });
-
-        // Send new user data to server
-        socket.emit('new user', { username });
-
-        // Send message to server
-        function sendMessage() {
-            if (!message) {
-                return;
+    <head>
+        <title>OpenAI Chat Platform</title>
+        <style>
+            body {
+                font-family: sans-serif;
             }
 
-            socket.emit('new message', { username, message });
-
-            message = '';
-        }
-
-        // Upload image to server
-        function uploadImage(event) {
-            const file = event.target.files[0];
-
-            if (!file) {
-                return;
+            .chat-container {
+                width: 500px;
+                margin: auto;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
             }
 
-            const formData = new FormData();
-            formData.append('image', file);
+            .chat-container h1 {
+                text-align: center;
+            }
 
-            fetch('/upload', { method: 'POST', body: formData })
-                .then((response) => {
-                    if (response.status === 200) {
-                        response.json().then((image) => {
-                            socket.emit('new image', { username, image });
-                        });
-                    } else {
-                        alert('Failed to upload image.');
+            .messages {
+                height: 300px;
+                overflow-y: auto;
+            }
+
+            .message-container {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 10px;
+            }
+
+            .username {
+                font-weight: bold;
+                margin-right: 10px;
+            }
+
+            .message {
+                background-color: #f1f1f1;
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            .timestamp {
+                font-size: 11px;
+                color: #ccc;
+                margin-top: 10px;
+            }
+
+            .message-form {
+                display: flex;
+                align-items: flex-start;
+                margin-top: 10px;
+            }
+
+            .message-form textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            .message-form button {
+                margin-left: 10px;
+                padding: 10px;
+                background-color: #0084ff;
+                border: none;
+                color: #fff;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .message-form button:active {
+                background-color: #204d74;
+            }
+
+            .message-form input[type="file"] {
+                margin-left: 10px;
+            }
+        </style>
+    </head>
+    <body>
+      <div class="chat-container">
+            <h1>OpenAI Chat Platform</h1>
+            <div class="messages"></div>
+            <form class="message-form" onsubmit="sendMessage(); return false;">
+                <textarea v-model="message" placeholder="Type your message..."></textarea>
+                <button type="submit">Send message</button>
+                <input type="file" @change="uploadImage">
+            </form>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+        <script>
+            const socket = io();
+            let username = '';
+            let message = '';
+
+            // Prompt for username
+            while (!username) {
+                username = prompt('Enter your username:');
+            }
+            // Listen for new users
+            socket.on('new user', (data) => {
+                addMessage(data, 'has joined the chat');
+            });
+
+            // Listen for new messages
+            socket.on('new message', (data) => {
+                addMessage(data);
+            });
+
+            // Listen for new images
+            socket.on('new image', (data) => {
+                addImage(data);
+            });
+
+            // Send new user event to server
+            socket.emit('new user', { username });
+
+            // Send new message to server
+            function sendMessage() {
+                if (message) {
+                    socket.emit('new message', { username, message });
+                    message = '';
+                }
+            }
+
+            // Upload image
+            function uploadImage(event) {
+                const file = event.target.files[0];
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                }).then((response) => {
+                    if (!response.ok) {
+                        throw response;
                     }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    alert('Failed to upload image.');
+
+                    return response.json();
+                }).then((image) => {
+                    socket.emit('new image', { username, image });
+                }).catch((error) => {
+                    console.error('Error uploading image:', error);
                 });
-        }
-
-        // Add message to chat history
-        function addMessage(data, messageSuffix) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message-container');
-
-            const usernameElement = document.createElement('div');
-            usernameElement.classList.add('username');
-            usernameElement.innerText = data.username;
-
-            const messageTextElement = document.createElement('div');
-            messageTextElement.classList.add('message');
-            messageTextElement.innerText = data.message;
-
-            if (messageSuffix) {
-                messageTextElement.innerText += ' ' + messageSuffix;
             }
 
-            const timestampElement = document.createElement('div');
-            timestampElement.classList.add('timestamp');
-            timestampElement.innerText = new Date().toLocaleTimeString();
+            // Add message to chat history
+            function addMessage(data, messageSuffix) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message-container');
 
-            messageElement.appendChild(usernameElement);
-            messageElement.appendChild(messageTextElement);
-            messageElement.appendChild(timestampElement);
+                const usernameElement = document.createElement('div');
+                usernameElement.classList.add('username');
+                usernameElement.innerText = data.username;
 
-            const messagesElement = document.querySelector('.messages');
-            messagesElement.appendChild(messageElement);
-            messagesElement.scrollTop = messagesElement.scrollHeight;
-        }
+                const messageTextElement = document.createElement('div');
+                messageTextElement.classList.add('message');
+                messageTextElement.innerText = data.message;
 
-        // Add image to chat history
-        function addImage(data) {
-            const messagesElement = document.querySelector('.messages');
+                if (messageSuffix) {
+                    messageTextElement.innerText += ' ' + messageSuffix;
+                }
 
-            const imageElement = document.createElement('img');
-            imageElement.classList.add('message');
-            imageElement.src = data.image.path;
+                const timestampElement = document.createElement('div');
+                timestampElement.classList.add('timestamp');
+                timestampElement.innerText = new Date().toLocaleTimeString();
 
-            const usernameElement = document.createElement('div');
-            usernameElement.classList.add('username');
-            usernameElement.innerText = data.username;
+                messageElement.appendChild(usernameElement);
+                messageElement.appendChild(messageTextElement);
+                messageElement.appendChild(timestampElement);
 
-            const timestampElement = document.createElement('div');
-            timestampElement.classList.add('timestamp');
-            timestampElement.innerText = new Date().toLocaleTimeString();
+                const messagesElement = document.querySelector('.messages');
+                messagesElement.appendChild(messageElement);
+                messagesElement.scrollTop = messagesElement.scrollHeight;
+            }
+            // Add image to chat history
+            function addImage(data) {
+                const messagesElement = document.querySelector('.messages');
 
-            messagesElement.appendChild(usernameElement);
-            messagesElement.appendChild(imageElement);
-            messagesElement.appendChild(timestampElement);
+                const imageElement = document.createElement('img');
+                imageElement.classList.add('message');
+                imageElement.src = data.image.path;
 
-            messagesElement.scrollTop = messagesElement.scrollHeight;
-        }
-    </script>
-</body>
+                const usernameElement = document.createElement('div');
+                usernameElement.classList.add('username');
+                usernameElement.innerText = data.username;
+
+                const timestampElement = document.createElement('div');
+                timestampElement.classList.add('timestamp');
+                timestampElement.innerText = new Date().toLocaleTimeString();
+
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message-container');
+                messageElement.appendChild(usernameElement);
+                messageElement.appendChild(imageElement);
+                messageElement.appendChild(timestampElement);
+
+                messagesElement.appendChild(messageElement);
+                messagesElement.scrollTop = messagesElement.scrollHeight;
+            }
+
+            // Vue.js app
+            const app = new Vue({
+                el: '.message-form',
+                data: {
+                    message: ''
+                }
+            });
+        </script>
+    </body>
 </html>
