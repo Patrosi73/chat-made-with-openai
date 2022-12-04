@@ -128,25 +128,27 @@
 
             // Upload image
             function uploadImage(event) {
+                if (event.target.files.length > 0) {
                 const file = event.target.files[0];
                 const formData = new FormData();
                 formData.append('image', file);
 
                 fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                }).then((response) => {
-                    if (!response.ok) {
-                        throw response;
-                    }
-
-                    return response.json();
-                }).then((image) => {
-                    socket.emit('new image', { username, image });
-                }).catch((error) => {
-                    console.error('Error uploading image:', error);
-                });
+                 method: 'POST',
+                 body: formData
+                 }).then((response) => {
+                if (!response.ok) {
+                   throw response;
             }
+
+            return response.json();
+        }).then((image) => {
+            socket.emit('new image', { username, image });
+        }).catch((error) => {
+            console.error('Error uploading image:', error);
+        });
+    }
+}
 
             // Add message to chat history
             function addMessage(data, messageSuffix) {
