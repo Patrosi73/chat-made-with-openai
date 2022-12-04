@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 
-const server = app.listen(3000, 'localhost', (err) => {
+const server = app.listen(3000, '0.0.0.0', (err) => {
   if (err) {
     console.error(err);
   } else {
