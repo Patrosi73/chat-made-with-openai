@@ -13,8 +13,13 @@ app.use(cors());
 
 // Replace "localhost" with the public IP address of the machine where the server is running
 // Replace "3000" with the port number that you want the server to listen on (e.g. 4000)
+// Import the socket.io library
 const io = require('socket.io-client');
-const socket = io('http://0.0.0.0:4000');
+
+// Replace "localhost" with the public IP address of the machine where the server is running
+// Replace "3000" with the port number that the server is listening on (e.g. 4000)
+const socket = io('http://0.0.0.0:3000');
+
 socket.on('connect', () => {
   console.log('Connected to the server');
 
