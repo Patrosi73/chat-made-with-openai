@@ -120,9 +120,11 @@
             // Send new message to server
             function sendMessage() {
                 if (message) {
-                    socket.emit('new message', { username, message });
-                    message = '';
+                socket.emit('new message', { username, message });
+                message = '';
                 }
+            }
+
             }
 
             // Upload image
