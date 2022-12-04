@@ -20,6 +20,7 @@ const server = app.listen(3000, '0.0.0.0', (err) => {
     console.log('Server listening on port 3000');
   }
 });
+
 const io = socketIO(server);
 const upload = multer({ dest: 'uploads/' });
 
