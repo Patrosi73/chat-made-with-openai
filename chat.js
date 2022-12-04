@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 
-const server = app.listen(3000, '0.0.0.0', (err) => {
+const server = app.listen(3000, 'localhost', (err) => {
   if (err) {
     console.error(err);
   } else {
@@ -27,23 +27,12 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     let username = '';
-
     socket.on('new user', (data) => {
-        // Validate username
-        if (!data.username || typeof data.username !== 'string') {
-            return;
-        }
-
         username = escapeHtml(data.username);
         socket.broadcast.emit('new user', { username });
     });
 
     socket.on('new message', (data) => {
-        // Validate message
-        if (!data.message || typeof data.message !== 'string') {
-            return;
-        }
-
         const message = escapeHtml(data.message);
         io.emit('new message', { username, message });
     });
@@ -60,9 +49,8 @@ io.on('connection', (socket) => {
 app.post('/upload', upload.single('image'), (req, res) => {
     const image = req.file;
 
-    // Validate image
-    if (!image || !image.mimetype.startsWith('image/')) {
-        return res.status(400).send('Invalid image format.');
+    if (!image) {
+        return res.status(400).send('No image was uploaded.');
     }
 
     res.status(200).send(image);
