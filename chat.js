@@ -52,7 +52,6 @@ app.post('/upload', upload.single('image'), (req, res) => {
 
     if (!image)
               return res.status(400).send('No image was uploaded.');
-    }
 
     res.status(200).send(image);
 });
