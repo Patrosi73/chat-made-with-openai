@@ -35,24 +35,24 @@ io.on('connection', (socket) => {
 
     socket.on('new message', (data) => {
         const message = htmlEscape(data.message);
-        socket.emit('new message', { username, message });
-        socket.broadcast.emit('new message', { username, message });
-        socket.emit('new message', { username, message });
+        io.emit('new message', { username, message });
     });
 
     socket.on('new image', (data) => {
-        socket.broadcast.emit('new image', { username, data });
+        io.emit('new image', { username, data });
+    });
+
+    socket.on('disconnect', () => {
+        io.emit('user disconnected', { username });
     });
 });
 
 app.post('/upload', upload.single('image'), (req, res) => {
     const image = req.file;
 
-    if (!image) {
-        return res.status(400).send('No image was uploaded.');
+    if (!image)
+              return res.status(400).send('No image was uploaded.');
     }
 
     res.status(200).send(image);
 });
-
-
